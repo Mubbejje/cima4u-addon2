@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 سيما فور يو - Cima4u Addon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Readex+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #f5c842;
+      --gold2: #e8a020;
+      --deep: #0a0a14;
+      --card: #12121f;
+      --card2: #1a1a2e;
+      --accent: #e63946;
+      --text: #f0eaff;
+      --muted: #8882aa;
+      --green: #2ec4b6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Cairo', 'Readex Pro', sans-serif;
+      background: var(--deep);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Starfield ── */
+    .stars {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 35% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 65% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 45% 45%, rgba(245,200,66,0.3) 0%, transparent 100%);
+    }
+
+    .glow-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .glow-orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(230,57,70,0.15) 0%, transparent 70%);
+      top: -200px; left: -200px;
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+    .glow-orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(245,200,66,0.12) 0%, transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: orbFloat 10s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(30px, 30px); }
+    }
+
+    /* ── Layout ── */
+    .container {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .logo-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 110px; height: 110px;
+      background: linear-gradient(135deg, var(--accent), var(--gold2));
+      border-radius: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 0 60px rgba(230,57,70,0.4), 0 0 120px rgba(245,200,66,0.15);
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 0 60px rgba(230,57,70,0.4), 0 0 120px rgba(245,200,66,0.15); }
+      50% { box-shadow: 0 0 80px rgba(230,57,70,0.6), 0 0 160px rgba(245,200,66,0.25); }
+    }
+    .logo-wrap span { font-size: 52px; }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--gold) 0%, #fff 50%, var(--gold2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 8px;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px 0 36px;
+    }
+    .badge {
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .badge-red { background: rgba(230,57,70,0.15); color: var(--accent); border: 1px solid rgba(230,57,70,0.3); }
+    .badge-gold { background: rgba(245,200,66,0.12); color: var(--gold); border: 1px solid rgba(245,200,66,0.3); }
+    .badge-green { background: rgba(46,196,182,0.12); color: var(--green); border: 1px solid rgba(46,196,182,0.3); }
+
+    /* ── Install Buttons ── */
+    .install-section {
+      background: var(--card);
+      border: 1px solid rgba(245,200,66,0.15);
+      border-radius: 24px;
+      padding: 36px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .install-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--accent), transparent);
+    }
+
+    .install-title {
+      font-size: 1.1rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+    .install-title strong { color: var(--gold); }
+
+    .btn-row {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 32px;
+      border-radius: 14px;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .btn:hover::after { background: rgba(255,255,255,0.07); }
+    .btn:active { transform: scale(0.97); }
+
+    .btn-stremio {
+      background: linear-gradient(135deg, #7b2d8b, #5c1f6e);
+      color: white;
+      box-shadow: 0 8px 30px rgba(123,45,139,0.4);
+    }
+    .btn-stremio:hover { box-shadow: 0 12px 40px rgba(123,45,139,0.6); transform: translateY(-2px); }
+
+    .btn-nuvio {
+      background: linear-gradient(135deg, #1a6b8a, #0d4d6b);
+      color: white;
+      box-shadow: 0 8px 30px rgba(26,107,138,0.4);
+    }
+    .btn-nuvio:hover { box-shadow: 0 12px 40px rgba(26,107,138,0.6); transform: translateY(-2px); }
+
+    .btn-copy {
+      background: rgba(245,200,66,0.1);
+      color: var(--gold);
+      border: 1px solid rgba(245,200,66,0.3);
+      font-size: 0.9rem;
+    }
+    .btn-copy:hover { background: rgba(245,200,66,0.2); }
+
+    /* ── URL Box ── */
+    .url-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card2);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 20px;
+    }
+    .url-text {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    .copy-icon {
+      font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+    .copy-icon:hover { opacity: 1; }
+    .copied-msg {
+      font-size: 0.75rem;
+      color: var(--green);
+      display: none;
+    }
+
+    /* ── Features ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      padding: 24px;
+      transition: all 0.25s;
+    }
+    .feature-card:hover {
+      border-color: rgba(245,200,66,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .feature-icon { font-size: 2rem; margin-bottom: 12px; }
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .feature-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── Steps ── */
+    .steps-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 32px;
+    }
+    .steps-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .step:last-child { border-bottom: none; }
+    .step-num {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--gold2));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 0.9rem;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(230,57,70,0.3);
+    }
+    .step-text { font-size: 0.95rem; color: var(--text); line-height: 1.6; padding-top: 6px; }
+    .step-text em { color: var(--gold); font-style: normal; font-weight: 700; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      padding: 20px;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--green);
+      color: #000;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      transition: transform 0.3s ease;
+      z-index: 999;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 480px) {
+      .btn { padding: 13px 22px; font-size: 0.9rem; }
+      .install-section { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <div class="container">
+    <div class="hero">
+      <div class="logo-wrap"><span>🎬</span></div>
+      <h1>سيما فور يو</h1>
+      <p class="subtitle">Cima4u — إضافة الأفلام والمسلسلات العربية</p>
+      <div class="badge-row">
+        <span class="badge badge-red">🎬 أفلام عربية وأجنبية</span>
+        <span class="badge badge-gold">📺 مسلسلات مترجمة</span>
+        <span class="badge badge-green">✅ Stremio & Nuvio</span>
+      </div>
+    </div>
+
+    <!-- Install Section -->
+    <div class="install-section">
+      <p class="install-title">اضغط زر التثبيت <strong>مباشرة</strong> لإضافتها تلقائياً</p>
+      <div class="btn-row">
+        <a class="btn btn-stremio" id="stremio-btn" href="#">
+          <span>📺</span> تثبيت على Stremio
+        </a>
+        <a class="btn btn-nuvio" id="nuvio-btn" href="#">
+          <span>🎯</span> تثبيت على Nuvio
+        </a>
+      </div>
+
+      <div class="url-box">
+        <span class="url-text" id="manifest-url">جاري التحميل...</span>
+        <span class="copy-icon" onclick="copyUrl()" title="نسخ الرابط">📋</span>
+        <span class="copied-msg" id="copied-msg">تم النسخ! ✓</span>
+      </div>
+      <button class="btn btn-copy" style="margin:14px auto 0;display:flex;" onclick="copyUrl()">
+        📋 نسخ رابط الـ Manifest
+      </button>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🎭</div>
+        <div class="feature-title">أفلام عربية وأجنبية</div>
+        <div class="feature-desc">آلاف الأفلام بالعربية والمترجمة من موقع سيما فور يو مباشرة</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📺</div>
+        <div class="feature-title">مسلسلات متنوعة</div>
+        <div class="feature-desc">مسلسلات عربية وأجنبية مترجمة وكاملة الحلقات</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">بحث سريع</div>
+        <div class="feature-desc">ابحث بالعربية أو الإنجليزية عن أي فيلم أو مسلسل</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">مشاهدة فورية</div>
+        <div class="feature-desc">تشغيل مباشر بدون تسجيل أو اشتراك — مجاناً بالكامل</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">كل الأجهزة</div>
+        <div class="feature-desc">يشتغل على الهاتف والتلفزيون والكمبيوتر</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <div class="feature-title">تحديث مستمر</div>
+        <div class="feature-desc">يجلب أحدث الأفلام والمسلسلات تلقائياً</div>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps-card">
+      <div class="steps-title">🛠️ كيفية التثبيت اليدوي</div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">افتح تطبيق <em>Stremio</em> أو <em>Nuvio</em> على جهازك</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">اذهب إلى قسم <em>الإضافات / Addons</em></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">اضغط <em>إضافة addon خارجي</em> أو ابحث عن حقل إدخال الرابط</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">الصق رابط الـ <em>manifest.json</em> الموجود أعلاه</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">اضغط <em>تثبيت</em> وابدأ المشاهدة! 🎉</div>
+      </div>
+    </div>
+
+    <footer>
+      <p>صُنع بـ ❤️ للمشاهد العربي &nbsp;•&nbsp; Cima4u Stremio Addon</p>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast">✅ تم نسخ الرابط!</div>
+
+  <script>
+    // Dynamic URL detection
+    const base = window.location.origin;
+    const manifestUrl = base + '/manifest.json';
+
+    document.getElementById('manifest-url').textContent = manifestUrl;
+    document.getElementById('stremio-btn').href = 'stremio://' + base.replace(/^https?:\/\//, '') + '/manifest.json';
+    document.getElementById('nuvio-btn').href = 'nuvio://' + base.replace(/^https?:\/\//, '') + '/manifest.json';
+
+    function copyUrl() {
+      navigator.clipboard.writeText(manifestUrl).then(() => {
+        showToast();
+      }).catch(() => {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = manifestUrl;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast();
+      });
+    }
+
+    function showToast() {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+  </script>
+</body>
+</html>
