@@ -1,0 +1,60 @@
+{
+  "id": "community.cima4u.arabic",
+  "version": "1.0.0",
+  "name": "🎬 سيما فور يو - Cima4u",
+  "description": "أفلام ومسلسلات عربية وأجنبية مترجمة من موقع سيما فور يو - Movies & Series in Arabic",
+  "logo": "https://c4u.top/wp-content/uploads/2020/01/logo.png",
+  "background": "https://c4u.top/wp-content/uploads/2020/01/bg.jpg",
+  "types": ["movie", "series"],
+  "resources": ["catalog", "meta", "stream"],
+  "idPrefixes": ["cima4u_"],
+  "catalogs": [
+    {
+      "type": "movie",
+      "id": "cima4u_movies_latest",
+      "name": "🎬 أحدث الأفلام - Cima4u",
+      "extra": [
+        { "name": "search", "isRequired": false },
+        { "name": "skip", "isRequired": false }
+      ]
+    },
+    {
+      "type": "movie",
+      "id": "cima4u_movies_arabic",
+      "name": "🎭 أفلام عربية - Cima4u",
+      "extra": [
+        { "name": "skip", "isRequired": false }
+      ]
+    },
+    {
+      "type": "movie",
+      "id": "cima4u_movies_foreign",
+      "name": "🌍 أفلام أجنبية مترجمة - Cima4u",
+      "extra": [
+        { "name": "skip", "isRequired": false }
+      ]
+    },
+    {
+      "type": "series",
+      "id": "cima4u_series_latest",
+      "name": "📺 أحدث المسلسلات - Cima4u",
+      "extra": [
+        { "name": "search", "isRequired": false },
+        { "name": "skip", "isRequired": false }
+      ]
+    },
+    {
+      "type": "series",
+      "id": "cima4u_series_arabic",
+      "name": "📺 مسلسلات عربية - Cima4u",
+      "extra": [
+        { "name": "skip", "isRequired": false }
+      ]
+    }
+  ],
+  "behaviorHints": {
+    "adult": false,
+    "p2p": false,
+    "configurable": false
+  }
+}
