@@ -1,18 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 const scraper = require('./scraper');
+const manifest = require('./manifest.json');
 
 const app = express();
 const PORT = process.env.PORT || 7860;
-const manifest = require('./manifest.json');
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, '../public')));
-
-// ─── Helper ────────────────────────────────────────────────────────────────
 
 function respond(res, data) {
   res.setHeader('Content-Type', 'application/json');
@@ -20,19 +16,21 @@ function respond(res, data) {
   res.json(data);
 }
 
-// ─── Manifest ──────────────────────────────────────────────────────────────
-
-app.get('/manifest.json', (req, res) => {
-  res.json(manifest);
-});
-
-// Stremio deep-link install page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  res.send(`<html dir="rtl"><body style="font-family:Arial;text-align:center;padding:40px;background:#111;color:#fff">
+    <h1>🎬 سيما فور يو - Addon</h1>
+    <p>الإضافة تعمل بنجاح ✅</p>
+    <p>رابط التثبيت:</p>
+    <code style="background:#333;padding:10px;border-radius:8px;display:block;margin:20px auto;max-width:500px">
+      ${req.protocol}://${req.get('host')}/manifest.json
+    </code>
+    <a href="/manifest.json" style="color:#f5c842">عرض الـ manifest</a>
+  </body></html>`);
 });
 
-// ─── Catalog ───────────────────────────────────────────────────────────────
+app.get('/manifest.json', (req, res) => res.json(manifest));
 
+// Catalog
 app.get('/catalog/:type/:id.json', handleCatalog);
 app.get('/catalog/:type/:id/skip=:skip.json', handleCatalog);
 app.get('/catalog/:type/:id/search=:search.json', handleSearch);
@@ -40,25 +38,12 @@ app.get('/catalog/:type/:id/search=:search.json', handleSearch);
 async function handleCatalog(req, res) {
   const { type, id } = req.params;
   const skip = parseInt(req.params.skip || 0);
-
   try {
     const items = await scraper.getCatalog(id, skip);
-    const metas = items
-      .filter(item => item && item.name)
-      .map(item => {
-        // Store URL mapping
-        scraper.storeUrl(item.id, item._url);
-        return {
-          id: item.id,
-          type: item.type || type,
-          name: item.name,
-          poster: item.poster || '',
-          year: item.year,
-          description: item.description,
-          imdbRating: item.imdbRating,
-        };
-      });
-
+    const metas = items.filter(i => i?.name).map(item => {
+      scraper.storeUrl(item.id, item._url, item._wpId);
+      return { id: item.id, type: item.type || type, name: item.name, poster: item.poster || '', year: item.year, description: item.description };
+    });
     respond(res, { metas });
   } catch (e) {
     console.error('[Catalog]', e.message);
@@ -69,82 +54,46 @@ async function handleCatalog(req, res) {
 async function handleSearch(req, res) {
   const { type } = req.params;
   const query = decodeURIComponent(req.params.search || '');
-
   try {
     const items = await scraper.search(query);
-    const metas = items
-      .filter(item => item && item.name)
-      .map(item => {
-        scraper.storeUrl(item.id, item._url);
-        return {
-          id: item.id,
-          type: item.type || type,
-          name: item.name,
-          poster: item.poster || '',
-          year: item.year,
-        };
-      });
+    const metas = items.filter(i => i?.name).map(item => {
+      scraper.storeUrl(item.id, item._url, item._wpId);
+      return { id: item.id, type: item.type || type, name: item.name, poster: item.poster || '', year: item.year };
+    });
     respond(res, { metas });
   } catch (e) {
-    console.error('[Search]', e.message);
     respond(res, { metas: [] });
   }
 }
 
-// ─── Meta ──────────────────────────────────────────────────────────────────
-
+// Meta
 app.get('/meta/:type/:id.json', async (req, res) => {
   const { type, id } = req.params;
-  const url = scraper.getUrl(id);
-
-  if (!url) {
-    return respond(res, { meta: { id, type, name: 'غير متوفر' } });
-  }
-
+  const wpId = scraper.getWpId(id);
+  if (!wpId) return respond(res, { meta: { id, type, name: 'غير متوفر' } });
   try {
-    const meta = await scraper.getMetaFromUrl(url, type);
-    if (meta) {
-      scraper.storeUrl(meta.id, url);
-      respond(res, { meta });
-    } else {
-      respond(res, { meta: { id, type, name: 'غير متوفر' } });
-    }
+    const meta = await scraper.getMetaFromWpId(wpId, type);
+    if (meta) { scraper.storeUrl(meta.id, meta._url, meta._wpId); respond(res, { meta }); }
+    else respond(res, { meta: { id, type } });
   } catch (e) {
-    console.error('[Meta]', e.message);
     respond(res, { meta: { id, type } });
   }
 });
 
-// ─── Streams ───────────────────────────────────────────────────────────────
-
+// Stream
 app.get('/stream/:type/:id.json', async (req, res) => {
-  const { type, id } = req.params;
+  const { id } = req.params;
   const url = scraper.getUrl(id);
-
-  if (!url) {
-    return respond(res, {
-      streams: [{
-        name: '🔗 Cima4u',
-        title: 'فتح الموقع',
-        externalUrl: 'https://c4u.top',
-        behaviorHints: { notWebReady: true },
-      }]
-    });
-  }
-
+  const wpId = scraper.getWpId(id);
   try {
-    const streams = await scraper.getStreams(url);
+    const streams = await scraper.getStreams(url, wpId);
     respond(res, { streams });
   } catch (e) {
-    console.error('[Stream]', e.message);
     respond(res, { streams: [] });
   }
 });
 
-// ─── Start ─────────────────────────────────────────────────────────────────
-
 app.listen(PORT, () => {
-  console.log(`\n🎬 Cima4u Addon running on port ${PORT}`);
+  console.log(`🎬 Cima4u Addon running on port ${PORT}`);
   console.log(`📦 Manifest: http://localhost:${PORT}/manifest.json`);
-  console.log(`🔗 Install in Stremio: stremio://localhost:${PORT}/manifest.json\n`);
 });
